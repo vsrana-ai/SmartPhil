@@ -1,55 +1,75 @@
 
 # -*- coding: utf-8 -*-
-
 #Importing the packages and libraries 
-import re
-import pickle
+#Gensim Library
+import gensim
+from gensim.models import Word2Vec 
+from gensim.scripts.glove2word2vec import glove2word2vec 
+from gensim.utils import simple_preprocess
+from gensim.models.keyedvectors import KeyedVectors
+from gensim.utils import tokenize
+#import multiprocessing
+
+#NlTK Libraray 
 import nltk
 import nltk.tokenize
 from nltk.tokenize import sent_tokenize
-#from nltk.corpus import brown
-
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 from nltk.tokenize import RegexpTokenizer
 from nltk.stem import WordNetLemmatizer
 from nltk.stem.porter import PorterStemmer 
+
+#Pandas and Numpy
 import pandas as pd
 import numpy as np 
 from numpy import array
 from numpy import asarray
 from numpy import zeros
-from matplotlib import pyplot as plt
+import statistics 
+from statistics import mean
 
+#Keras
+import keras 
+from keras.layers import Embedding
+from keras.models import Sequential
+from keras.utils import to_categorical
+from keras.preprocessing import sequence
+from keras.preprocessing.text import Tokenizer 
+from keras.preprocessing.sequence import pad_sequences
+from keras.layers import Embedding, SimpleRNN
+from keras.metrics import binary_accuracy
+from keras.layers import Dense, Flatten, Dropout, Activation, Embedding, LSTM, Bidirectional, SimpleRNN, Conv1D, MaxPooling1D, TimeDistributed
+
+#Sci-Kit Library 
 import sklearn
-from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, mean_squared_error, mean_absolute_error
-#from sklearn.metrics import balanced_accuracy_score
+from sklearn import metrics
 from sklearn.decomposition import TruncatedSVD
-from scipy.sparse import random as sparse_random
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics import balanced_accuracy_score
 from sklearn.random_projection import sparse_random_matrix
 from sklearn.model_selection import StratifiedKFold
-#from sklearn import cross_validation
-#from sklearn.cross_validation import KFold
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.naive_bayes import GaussianNB
-from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
 from sklearn.model_selection import KFold
 from sklearn import datasets, linear_model
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix,classification_report
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn import svm
-from sklearn.svm import SVC
-from sklearn.metrics import roc_auc_score
-from sklearn.metrics import balanced_accuracy_score
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, mean_squared_error, mean_absolute_error
 
+#Miscellaneous 
+import argparse
+import os
+import io
+import re
+import sys
+import gc
+import pickle
+import datetime
 import matplotlib.pyplot as plt
 import sys
 import gc
-from datetime import date
 import statistics
 from statistics import mean
+
 # In[14]:
 
 if len(sys.argv)!=2:
@@ -57,9 +77,6 @@ if len(sys.argv)!=2:
     sys.exit(1)
 
 target_class = sys.argv[1]
-print("---------------------------")
-print("---------------------------")
-print("---------------------------")
 print("---------------------------")
 print ("CLASSNAME:",target_class)
 
@@ -69,7 +86,7 @@ train_data = pd.read_csv('Asthma.csv', sep=';')#.head(10)
 for column in train_data:
     print(column)
 
-#Defining the Function for seperating Text and Labels-
+#Defining the function for seperating Text and Labels-
 def texts_and_labels(data):
     texts = []
     labels = []
@@ -80,10 +97,9 @@ def texts_and_labels(data):
         #id += [r['id']]
     return texts, labels #, id
 
-#Assigning array to Text and Labels of Input Data
+#Getting the Text and Labels of Input Data
 text, label = texts_and_labels(train_data)
 print('Labels distribution:', label.count(0), label.count(1))
-#print(train_texts[0:5])
 print(type(text), len(text))
 print(label[0:50], 'The Label type is', type(label), len(label))
 print(label[0:50], 'The Label type is', type(label), len(label))
@@ -98,21 +114,17 @@ import io
 import string
 from nltk.corpus import stopwords
 
-#Defining the Symbols to be removed
+#Defining the symbols
 symbols = "|!\"#$%&()*+-./:;<=>?@[\]^_`{|}~\n"
-#Step . Making all data to lower case
+#Lower casing the data
 text1=np.char.lower(text)
-print(type(text1))
-
-#Step 2. Remove Punctuations   
+print(type(text1))   
 text2= np.char.replace(text1, "'", "")
-#print(text2[0:1])
 temp_text = text2
-#Step 3. Removing ‘ apostrophe
 for i in symbols:
     temp_text = np.char.replace(temp_text,i,' ')
 text3 = temp_text
-
+#Removing stopwords
 def remove_stopwords(text): 
     new=[]
     stop_words = set(stopwords.words("english")) 
@@ -122,39 +134,29 @@ def remove_stopwords(text):
         new.append(' '.join(filtered_text))
     return new
 text = remove_stopwords(text3)
-
 processed_data=list(filter(lambda x:x, map(lambda x:re.sub(r'[^A-Za-z ]', '', x), text)))
 for i in range(0, len(processed_data)):
     processed_data[i] = ' '.join(processed_data[i].split())
-#print(text_new[0:1])
-#print(processed_data[0:1])
 print(type(processed_data))
 
-#Calculating the length and average of data for vectorization
+#Calculating the length and average length
 sum=[]
 viv=0
 for l in processed_data:
     viv += len(l)
-    #print(len(l))
     sum.append(len(l))
 
 print('Type of sum is', type(sum))
 avg=int((viv/len(processed_data)))
 print(avg)
-#Here sum is list containing all 952 values
-#print('Length distribution of int of text length is:')
 print ("Max length is :", max(sum))  
 print ("MIN length is :", min(sum)) 
-#print ("AVG length is :", avg) 
 print('Std dev is:', np.std(sum))
 max_len=max(sum)
 
-#print(train_labels[0:10])
+# Preparing Input Data
 X = np.array(processed_data)
-
-
 Y= np.array(label)
-#print(X[0:1])
 print(Y[0:10])
 print('The type X and Y are :', type(X), type(Y))
 print('The shape X and Y are :', X.shape, Y.shape)
@@ -164,8 +166,6 @@ Tfidf_vect = TfidfVectorizer(max_features=max_len)
 
 X = Tfidf_vect.fit_transform(X).toarray() 
 print('The type of TF-IDF matrix and Shape is :', type(X), X.shape) 
-
-
 acc = []
 p = []
 r = []
@@ -186,8 +186,8 @@ kf.get_n_splits(X)
 for train_index, test_index in kf.split(X):
     print('',train_index[0:5], type(train_index))
     print(test_index[0:5], type(test_index))
-    x_train_text, x_test_text=X[train_index], X[test_index]   #X=Text 
-    y_train_label, y_test_label=Y[train_index], Y[test_index]  #Y=Labels
+    x_train_text, x_test_text=X[train_index], X[test_index] 
+    y_train_label, y_test_label=Y[train_index], Y[test_index] 
     print('The shape of x_train_text and x_test_text are:', x_train_text.shape, x_test_text.shape)
     print('The type of x_train_text and x_test_text are:', type(x_train_text), type(x_test_text))
     print('The shape of y_train_label and y_test_label are:', y_train_label.shape, y_test_label.shape)
@@ -204,7 +204,7 @@ for train_index, test_index in kf.split(X):
     print('-----The 1st Confusion Matrix')
     print('The confusion matrix is', '\n', confusion_matrix(y_test_label, pred_labels))
 
-    #Generating a CSV File for predicrted results 
+    #Generating a CSV Filepf predicted results
     pred=pd.DataFrame(columns=['Id', 'Orginal Labels', target_class])
     pred['Id'] = test_index
     pred['Orginal Labels'] = y_test_label
@@ -212,9 +212,7 @@ for train_index, test_index in kf.split(X):
     
     print('The data Frame pred results ', pred[:5])
     results += [pred]  
-    
-    # Computing the First Metrics Report:
-
+    # Computing the First metrics:
     acc_binary = accuracy_score(y_test_label, pred_labels)
     p_binary = precision_score(y_test_label, pred_labels)
     r_binary = recall_score(y_test_label, pred_labels)
@@ -228,8 +226,7 @@ for train_index, test_index in kf.split(X):
     print('>>> F1:', f_binary)
     print('>>> Balanced Accuracy:', b_acc)
 
-    #Swapping the 0 an 1 of the text and predicted classes
-
+    #Swapping the 0 an 1 of the test and predicted labels
     print('new method2')
     new_y_test_label = []
     new_pred_labels = []
