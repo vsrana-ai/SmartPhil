@@ -1,7 +1,7 @@
-#Genism Library
+#Gensim Library
 import gensim
-from gensim.models import Word2Vec  #For loading word2vec words embedding
-from gensim.scripts.glove2word2vec import glove2word2vec    #For loading glove words embedding
+from gensim.models import Word2Vec 
+from gensim.scripts.glove2word2vec import glove2word2vec 
 from gensim.utils import simple_preprocess
 from gensim.models.keyedvectors import KeyedVectors
 from gensim.utils import tokenize
@@ -57,7 +57,7 @@ from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_sc
 
 import matplotlib.pyplot as plt
 
-#Miscellanious 
+#Miscellaneous 
 import argparse
 import os
 import io
@@ -69,20 +69,17 @@ import datetime
 import tensorflow as tf
 import mxnet as mx
 from bert_embedding import BertEmbedding
-#from keras_self_attention import SeqSelfAttention, SeqWeightedAttention
 from scipy.sparse import random as sparse_random
 import bert
-
 
 class morbidity                                                                                                                                                                     :
     def __init__(self, target_class):
         self.target_class = target_class
-        #self.train_data = pd.read_csv('/home/simaz/Vivek/work/phil_humans/n2c2/final_data_n2c2/' + target_class + '.csv', sep=';').head(100) #for server
-        self.train_data = pd.read_csv('~/Desktop/n2c2/' + target_class + '.csv', sep=';').head(5) #for mac
+        self.train_data = pd.read_csv('file_path' + target_class + '.csv', sep=';')
         print(type(self.train_data), len(self.train_data), '\n', self.train_data.head(3))
-        self.train_data = self.train_data.sample(frac=1)       # Shuffling the data  # do not shuffle the data when need results for enseble approach
+        self.train_data = self.train_data.sample(frac=1)  
         print(type(self.train_data), len(self.train_data), '\n', self.train_data.head(1))
-        #self.attention=attention()
+        self.attention=attention()
         self.train_texts = None
         self.train_labels = None
         self.train_encoded_doc = None
@@ -93,10 +90,8 @@ class morbidity                                                                 
         self.padded_train_data = None
         self.embedding_matrix = None
         self.model = None
-        #self.embedding_path = 'fasttext-300d-2M.vec'
-        self.embedding_dim = 300 # for bert=None beacus is is not defined for all other word embeddings the embedding dimension is 300. 
-        #self.embedding_bin= False
-
+        self.embedding_dim = None
+        
     def texts_and_labels(self):
         texts = []
         labels = []
@@ -110,14 +105,13 @@ class morbidity                                                                 
         print('Labels distribution of Training Labels:', '\n', 'Zeros-', self.train_labels.count(0), 'Ones=' ,self.train_labels.count(1))
         
     def padded_encoded_text(self):
-        
         # Tokenizing the Data 
         self.tokenizer.fit_on_texts(self.train_texts) #self.train_text + self.test_text
         
-        # Defining the Vocab Length (Size)of Unique words
+        # Defining the length of vocabulary
         self.vocab_size = len(self.tokenizer.word_index) + 1 # It is the input length to teh embedding layer for all word embeddings except BERT
         
-        # Defining the Vocab made from Unique words
+        # Defining the vocabulary made from unique words
         self.my_vocab = set([w for (w,i) in self.tokenizer.word_index.items()])   #set function is used to get unique words
         print('My Vocab set version is :', '\n', type(self.my_vocab), len(self.my_vocab))
  
@@ -125,26 +119,25 @@ class morbidity                                                                 
         self.train_encoded_doc = self.tokenizer.texts_to_sequences(self.train_texts)
         print(type(self.train_encoded_doc), len(self.train_encoded_doc)) #, '\n', self.train_encoded_doc[0:5])
         
-        # Getting the Average, standard devaition & Max length of Encoded Training Data
+        # Calculating the average, standard deviation & maximum length of Encoded Training Data
         length_train_texts = [len(x) for x in self.train_encoded_doc]
         print ("Max length is :", max(length_train_texts))  
         print ("AVG length is :", mean(length_train_texts)) 
         print('Std dev is:', np.std(length_train_texts))
         print('mean+ sd.deviation value for train encoded text is:', '\n', int(mean(length_train_texts)) + int(np.std(length_train_texts)))
         
-        self.max_length = int(mean(length_train_texts)) + int(np.std(length_train_texts)) #length of string used to input the embedding layer
-        #self.max_length = int(max(length_train_texts))   #dd int esle it will give error as it will not be read
+        self.max_length = int(mean(length_train_texts)) + int(np.std(length_train_texts))
         print("assigned max_length is:", self.max_length)
         
         #Padding the Integer Encoded Data to the max_length
-        self.padded_train_data = pad_sequences(self.train_encoded_doc, maxlen=self.max_length)  # Padding Input Data 
+        self.padded_train_data = pad_sequences(self.train_encoded_doc, maxlen=self.max_length) 
         print("Shape of Training Data is:", self.padded_train_data.shape, type(self.padded_train_data), len(self.padded_train_data),
-        '\n', self.padded_train_data[0:5])   # It is the final input_text
+        '\n', self.padded_train_data[0:5]) 
         print("Shape of Training Label is:", type(self.train_labels), len(self.train_labels))
     
     def bert(self):
         print('BERT START', str(datetime.datetime.now()))
-        # E. Using Bert Model with  Mxnet
+        # A. Using Bert Model with  Mxnet
         bert_embedding = BertEmbedding(model='bert_24_1024_16', dataset_name='book_corpus_wiki_en_cased')
         self.result = bert_embedding(self.train_texts)
         print(type(self.result))
@@ -157,7 +150,6 @@ class morbidity                                                                 
         for (vocab_list, emb_list) in self.result:
             sequence = []
             for i in range(len(vocab_list)):
-
                 if self.embedding_dim == 0:
                     self.embedding_dim = len(emb_list[i])
                 sequence += [id_n]
@@ -165,8 +157,7 @@ class morbidity                                                                 
                 id2word[id_n] = vocab_list[i]
                 id_n += 1
             sequences += [sequence]
-       
-        # Create a matrix of one embedding for each word in the Input Data
+        # Creating embedding matrix
         keys = sorted(id2word.keys())
         self.embedding_matrix = np.zeros((id_n, self.embedding_dim))
         for id_key in keys:
@@ -179,9 +170,9 @@ class morbidity                                                                 
 
     def word2vec(self):
         print('> loading word2vec embeddings')
-        #A. Word2Vecvec Using Gensim
-        word_vectors = KeyedVectors.load_word2vec_format('~/Desktop/embeddings/word2vec-GoogleNews-vectors-negative300.bin', binary=True, unicode_errors='ignore')
-        # Create a matrix of one embedding for each word in the Input Data
+        #B. Word2Vecvec Using Gensim
+        word_vectors = KeyedVectors.load_word2vec_format('file_path/word2vec-GoogleNews-vectors-negative300.bin', binary=True)
+       # Creating embedding matrix
         self.embedding_matrix = np.zeros((self.vocab_size, 300))
         for word, i in self.tokenizer.word_index.items():
             if word in word_vectors:
@@ -192,14 +183,9 @@ class morbidity                                                                 
        
     def glove(self):
         print('> loading glove embeddings')
-        #B. Glove Using Gensim
-        #If glove file is needed to be converted in wor2vecformat
-        #glove_input_file = 'glove.6B.300d.txt'
-        #word2vec_output_file = 'glove.6B.300d.word2vec.txt'
-        #glove2word2vec(glove_input_file, word2vec_output_file)
-        
-        word_vectors = KeyedVectors.load_word2vec_format('~/Desktop/embeddings/glove.6B.300d.word2vec.txt', binary=False, unicode_errors='ignore')
-        # Create a matrix of one embedding for each word in the Input Data
+        #C. Glove Using Gensim
+        word_vectors = KeyedVectors.load_word2vec_format('file_path/glove.6B.300d.word2vec.txt', binary=False)
+        # Creating embedding matrix
         self.embedding_matrix = np.zeros((self.vocab_size, 300))
         for word, i in self.tokenizer.word_index.items():
             if word in word_vectors:
@@ -211,8 +197,8 @@ class morbidity                                                                 
     def fasttext(self):
         print('> loading fasttext embeddings')
         # C. Fast Text Using Gensim 
-        word_vectors = KeyedVectors.load_word2vec_format('~/Desktop/embeddings/fasttext-300d-2M.vec', binary=False, unicode_errors='ignore')
-        # Create a matrix of one embedding for each word in the Input Data
+        word_vectors = KeyedVectors.load_word2vec_format('file_path/fasttext-300d-2M.vec', binary=False)
+        # Creating embedding matrix
         self.embedding_matrix = np.zeros((self.vocab_size, 300))
         for word, i in self.tokenizer.word_index.items():
             if word in word_vectors:
@@ -221,14 +207,11 @@ class morbidity                                                                 
         del(word_vectors)
         print('MATRIX ELEMENTS', self.embedding_matrix[0:10])
         
-        #embedding_bin = False   # Set True for binary and False for text word embedding
-        #word_vectors = gensim.models.KeyedVectors.load_word2vec_format(self.embedding_path, embedding_bin)
-        
     def domain_train(self):
         print('> loading domain embeddings')
         # D. Training the self word embedding
-        word_vectors = KeyedVectors.load_word2vec_format('~/Desktop/embeddings/embedding_model.txt', binary=False, unicode_errors='ignore')
-        #Create a matrix of one embedding for each word in the Input Data
+        word_vectors = KeyedVectors.load_word2vec_format('file_path/embedding_model.txt', binary=False)
+        # Creating embedding matrix
         self.embedding_matrix = np.zeros((self.vocab_size, self.embedding_dim))
         for word, i in self.tokenizer.word_index.items():
             if word in word_vectors:
@@ -243,40 +226,25 @@ class morbidity                                                                 
         self.model.add(e)
         self.model.add(LSTM(128, return_sequences=True, dropout=0.2))
         self.model.add(LSTM(64, return_sequences=False, dropout=0.1)) 
-        #model.add(Flatten(input_shape=(1,)))
-        #self.model.add(Flatten())
-        #self.model.add(Dense(16))
         self.model.add(Dense(1, activation='sigmoid'))
         # Compiling the model
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy']) 
-        #self.model.compile(optimizer='opt', loss='loss_fn', metrics=['accuracy'])
         # Summarizing the model
         print(self.model.summary())
-        #return self.model
 
     def bi_lstm(self):
         self.model = Sequential()
         e = Embedding(self.vocab_size, self.embedding_dim, weights=[self.embedding_matrix], input_length=self.max_length, trainable=False) 
         self.model.add(e)
-        #model.add(Dense(1, activation='sigmoid'))
         self.model.add(Bidirectional(LSTM(128, return_sequences=True, dropout=0.1)))
         self.model.add(Bidirectional(LSTM(64, return_sequences=False, dropout=0.1)))
-        #self.model.add(Flatten(input_shape=(1,)))
         self.model.add(Dense(16))
         self.model.add(Dense(1, activation='sigmoid'))
         # Compiling the model
         self.model.compile(optimizer='rmsprop', loss='binary_crossentropy', metrics=['accuracy'])  
         # Summarizing the model
-        #return self.model
         print(self.model.summary())
-    '''
-    # To reset the model method-1
-    def reset_weights(model):
-        session = K.get_session()
-        for layer in model.layers: 
-            if hasattr(layer, 'kernel_initializer'):
-                layer.kernel.initializer.run(session=session)
-    '''
+
     # To reset the model method-2
     def reset_weights(self, model_type,attention_layer):
         if model_type == 'lstm':
@@ -316,7 +284,7 @@ class morbidity                                                                 
             
             self.model.fit(x_train_text, y_train_label, epochs=20, batch_size=64, verbose=1)  #Running the model on Train Text and Train Label
 
-            #Making prediction on test data
+            #Making predictions on test data
             print('Old evaluation:')
             pred_labels=self.model.predict_classes(x_test_text)
 
@@ -337,7 +305,7 @@ class morbidity                                                                 
             results += [pred]
             print('The data Frame pred results ', pred[:5])
 
-            # Computing the First Metrics Report:
+            # Computing the first metrics :
 
             acc_binary = accuracy_score(y_test_label, pred_labels)
             p_binary = precision_score(y_test_label, pred_labels)
@@ -362,9 +330,7 @@ class morbidity                                                                 
                 if(each_value_1 == 0):
                     new_y_test_label += [1]
                 else:
-                    new_y_test_label += [0]
-                    #print(new_y_test_label)
-            #print(y_test_label)    
+                    new_y_test_label += [0]   
 
             for each_value_1 in pred_labels:
                 if(each_value_1 == 0):
@@ -381,8 +347,8 @@ class morbidity                                                                 
             print('-----The 2nd Confusion Matrix')
             print('The confusion matrix is', '\n', confusion_matrix(new_y_test_label, new_pred_labels))
 
-            #Computing the new Metrics Report:
-            print('Computing the new Metrics Report:')
+            #Computing the new metrics :
+            print('Computing the new metrics:')
             new_acc_binary = accuracy_score(new_y_test_label, new_pred_labels)
             new_p_binary = precision_score(new_y_test_label, new_pred_labels)
             new_r_binary = recall_score(new_y_test_label, new_pred_labels)
@@ -418,14 +384,7 @@ class morbidity                                                                 
             
             #1. reset_weights(self.model)
             self.reset_weights(model_type, attention_layer)
-            '''
-            self.model=None
-            if args.model_type == 'bi_lstm':
-                #morbidity_obj.bi_lstm()
-                self.model=bi_lstm()
-            '''
 
-            #sys.exit(1)
         #Printing Average Results    
         print('---- The final Averaged result after 10-fold validation: ' , self.target_class)
         print('>> Accuracy:', mean(acc)*100)
@@ -435,8 +394,7 @@ class morbidity                                                                 
         print('>> Balanced Accuracy:', mean(ba)*100)
         pred_results = pd.concat(results, axis=0, join='inner').sort_index()   #Important Axis=0 means data will be joined coulmn to column, it mean for 10 fold there will be 10 coulmns while axis=0 is row addtion. so total rowx will  be 952 but columns will remain 1. 
         print(pred_results[0:20])
-        pred_results.to_csv('~/Desktop/embeddings/' + self.target_class + '_pred_results.csv', index=False)
-        #pred_results.to_csv('/home/simaz/Vivek/work/' + self.target_class + '_viv_results.csv', index=False)
+        pred_results.to_csv('/path' + self.target_class + '_pred_results.csv', index=False)
 
 if __name__ == "__main__":
     print(sys.argv)
@@ -445,8 +403,6 @@ if __name__ == "__main__":
     parser.add_argument('--word-embedding', dest='word_embedding', default='fasttext', type=str, action='store', help='The input file')
     parser.add_argument('--model-type', dest='model_type', default='bi_lstm', type=str, action='store', help='The input file')
     parser.add_argument('--attention-layer', dest='attention_layer', default='False', action='store', type=str, help='The input file')
-    #parser.add_argument('--optimizer', dest='input_length', default=100, action='store', type=int, help='The input file')
-    #parser.add_argument('--loss', dest='input_length', default=100, action='store', type=int, help='The input file')
     args = parser.parse_args()
     
 #Step 1- Passing the target_class to the class with name of morbidity_obj
@@ -455,15 +411,14 @@ if __name__ == "__main__":
     print(args.word_embedding)
     print(args.model_type)
 
-#Step 2- Applying the method/function texts_and_labels      (no arguments)
+#Step 2- Applying the method/function texts_and_labels 
     morbidity_obj.texts_and_labels()
 
-#Step 3- Appyling the method/function padded_encoded_text   (no arguments)
+#Step 3- Appyling the method/function padded_encoded_text 
     morbidity_obj.padded_encoded_text()
     
-#Step 4- Applying the method/function to choose the type of word embedding   (passing arguments)
-    #morbidity_obj.build_embedding_matrix()
-    if args.word_embedding == 'word2vec':  #dest is the variable and value after ==  which replaces the default value
+#Step 4- Applying the method/function to choose the type of word embedding 
+    if args.word_embedding == 'word2vec': 
         morbidity_obj.word2vec()
     elif args.word_embedding == 'glove':
         morbidity_obj.glove()
@@ -478,9 +433,9 @@ if __name__ == "__main__":
         exit(1)
     #sys.exit(1)
   
-#Step 5- Applying the method/function train to run the model        
+#Step 5- Selecting a model to train        
     if args.model_type == 'lstm':
-        morbidity_obj.lstm()     #passing arguments inside the lstm to attention layer
+        morbidity_obj.lstm() 
     elif args.model_type == 'lstm_cnn':
         morbidity_obj.lstm_cnn()
     elif args.model_type == 'bi_lstm':
@@ -489,6 +444,5 @@ if __name__ == "__main__":
         print('Please use one of models: lstm, lstm_cnn or bi_lstm')
         exit(1)
       
-#Step 6- Applying the method/function train to run the model  
-    #morbidity_obj.train()
+#Step 6- Applying the method/function train 
     morbidity_obj.train(args.model_type, args.attention_layer)
