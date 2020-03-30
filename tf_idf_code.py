@@ -62,6 +62,7 @@ import io
 import re
 import sys
 import gc
+import string
 import pickle
 import datetime
 import matplotlib.pyplot as plt
@@ -106,25 +107,20 @@ print(label[0:50], 'The Label type is', type(label), len(label))
 
 stemmer = PorterStemmer()
 lemmatizer = WordNetLemmatizer()
-#Preprocessing the Text of data
-#Step. Removing stop words
-nltk.download('stopwords')
-nltk.download('punkt')
-import io
-import string
-from nltk.corpus import stopwords
-
-#Defining the symbols
-symbols = "|!\"#$%&()*+-./:;<=>?@[\]^_`{|}~\n"
+#Pre-processing the data
 #Lower casing the data
 text1=np.char.lower(text)
 print(type(text1))   
 text2= np.char.replace(text1, "'", "")
 temp_text = text2
+#Defining the symbols
+symbols = "|!\"#$%&()*+-./:;<=>?@[\]^_`{|}~\n"
 for i in symbols:
     temp_text = np.char.replace(temp_text,i,' ')
 text3 = temp_text
 #Removing stopwords
+nltk.download('stopwords')
+nltk.download('punkt')
 def remove_stopwords(text): 
     new=[]
     stop_words = set(stopwords.words("english")) 
@@ -145,7 +141,6 @@ viv=0
 for l in processed_data:
     viv += len(l)
     sum.append(len(l))
-
 print('Type of sum is', type(sum))
 avg=int((viv/len(processed_data)))
 print(avg)
@@ -163,7 +158,6 @@ print('The shape X and Y are :', X.shape, Y.shape)
 
 #Using the TFiDF vectorizer to vectorize the data
 Tfidf_vect = TfidfVectorizer(max_features=max_len)
-
 X = Tfidf_vect.fit_transform(X).toarray() 
 print('The type of TF-IDF matrix and Shape is :', type(X), X.shape) 
 acc = []
@@ -230,13 +224,11 @@ for train_index, test_index in kf.split(X):
     print('new method2')
     new_y_test_label = []
     new_pred_labels = []
-
     for each_value_1 in y_test_label:
         if(each_value_1 == 0):
             new_y_test_label += [1]
         else:
             new_y_test_label += [0]   
-
     for each_value_1 in pred_labels:
         if(each_value_1 == 0):
             new_pred_labels += [1]
