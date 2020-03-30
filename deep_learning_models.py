@@ -297,7 +297,7 @@ class morbidity                                                                 
             print('\nOriginal classes:', y_test_label[:20], '\n', len(y_test_label), type(y_test_label))
             print('Predicted classes', pred_labels[:10], '\n', len(pred_labels), type(pred_labels))
             
-            #Generating a CSV File for predicrted results 
+            #Generating a CSV File of predicted results 
             pred=pd.DataFrame(columns=['ID', 'Orginal Labels', self.target_class])
             pred['ID'] = test_index
             pred['Orginal Labels'] = y_test_label
@@ -306,7 +306,6 @@ class morbidity                                                                 
             print('The data Frame pred results ', pred[:5])
 
             # Computing the first metrics :
-
             acc_binary = accuracy_score(y_test_label, pred_labels)
             p_binary = precision_score(y_test_label, pred_labels)
             r_binary = recall_score(y_test_label, pred_labels)
@@ -320,18 +319,15 @@ class morbidity                                                                 
             print('>>> F1:', f_binary)
             print('>>> Balanced Accuracy:', b_acc)
 
-            #Swapping the 0 an 1 of the text and predicted classes
-            
+           #Swapping the 0 an 1 of the test and predicted labels 
             print('new method2')
             new_y_test_label = []
             new_pred_labels = []
-
             for each_value_1 in y_test_label:
                 if(each_value_1 == 0):
                     new_y_test_label += [1]
                 else:
                     new_y_test_label += [0]   
-
             for each_value_1 in pred_labels:
                 if(each_value_1 == 0):
                     new_pred_labels += [1]
