@@ -76,18 +76,14 @@ from statistics import mean
 if len(sys.argv)!=2:
     print ("python test.py classname")
     sys.exit(1)
-
 target_class = sys.argv[1]
 print("---------------------------")
 print ("CLASSNAME:",target_class)
-
-#target_class='Venous_Insufficiency'
-train_data = pd.read_csv('Asthma.csv', sep=';')#.head(10)
-
+train_data = pd.read_csv('Asthma.csv', sep=';')
 for column in train_data:
     print(column)
-
-#Defining the function for seperating Text and Labels-
+    
+#Defining the function for seperating Texts and Labels
 def texts_and_labels(data):
     texts = []
     labels = []
@@ -135,7 +131,7 @@ for i in range(0, len(processed_data)):
     processed_data[i] = ' '.join(processed_data[i].split())
 print(type(processed_data))
 
-#Calculating the length and average length
+#Calculating the length and average length of text
 sum=[]
 viv=0
 for l in processed_data:
@@ -191,14 +187,12 @@ for train_index, test_index in kf.split(X):
     pred_labels=model.predict(x_test_text)
     print('\nOriginal classes:', y_test_label[:20], '\n', len(y_test_label))
     print('Predicted classes', pred_labels[:10], '\n', len(pred_labels), type(pred_labels))
-
     print('-----The 1st Classification Report')
     print(classification_report(y_test_label, pred_labels, digits=4))
-
     print('-----The 1st Confusion Matrix')
     print('The confusion matrix is', '\n', confusion_matrix(y_test_label, pred_labels))
 
-    #Generating a CSV Filepf predicted results
+    #Generating a CSV File of predicted results
     pred=pd.DataFrame(columns=['Id', 'Orginal Labels', target_class])
     pred['Id'] = test_index
     pred['Orginal Labels'] = y_test_label
@@ -244,7 +238,7 @@ for train_index, test_index in kf.split(X):
     print('-----The 2nd Confusion Matrix')
     print('The confusion matrix is', '\n', confusion_matrix(new_y_test_label, new_pred_labels))
 
-    #Computing the new Metrics Report:
+    #Computing the new metrics:
     new_acc_binary = accuracy_score(new_y_test_label, new_pred_labels)
     new_p_binary = precision_score(new_y_test_label, new_pred_labels)
     new_r_binary = recall_score(new_y_test_label, new_pred_labels)
@@ -294,4 +288,4 @@ print('>> F1:', mean(f)*100)
 print('>> Balanced Accuracy:', mean(ba)*100)
 pred_results = pd.concat(results, axis=0, join='inner').sort_index()
 print(pred_results [0:100])   
-pred_results.to_csv('~/Desktop/' + target_class + '_results.csv', index=False)
+pred_results.to_csv('/path' + target_class + '_results.csv', index=False)
