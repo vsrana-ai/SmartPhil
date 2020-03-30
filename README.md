@@ -9,4 +9,4 @@ Today,  we  are  seeing  an  ever-increasing  number  of  clinicalnotes that con
 
 Keywords:Deep Learning·Natural Language Processing·MorbidityDetection·Word Embeddings·Classification.
 
-This repositry contains the source-code used for our exeripements, to run deep learning and supervised learning althorithms. 
+This repository contains the source code used for our experiments, to run deep learning and non-deep learning methodologies. 
