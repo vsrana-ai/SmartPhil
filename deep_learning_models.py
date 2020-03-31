@@ -6,7 +6,7 @@ from gensim.utils import simple_preprocess
 from gensim.models.keyedvectors import KeyedVectors
 from gensim.utils import tokenize
 
-#NlTK Libraray 
+#NlTK Library 
 import nltk
 import nltk.tokenize
 from nltk.tokenize import sent_tokenize
