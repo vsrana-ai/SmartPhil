@@ -18,10 +18,10 @@ argparse == 1.1
 ## Publications : 
 
 ```
-# 1. Ensembling Classical Machine Learning and Deep Learning Approaches for Morbidity Identification From Clinical Notes 
+1. Ensembling Classical Machine Learning and Deep Learning Approaches for Morbidity Identification From Clinical Notes 
 URL: https://ieeexplore.ieee.org/abstract/document/9286431
 
-# 2. TF-IDF vs Word Embeddings for Morbidity Identification in Clinical Notes: An Initial Study
+2. TF-IDF vs Word Embeddings for Morbidity Identification in Clinical Notes: An Initial Study
 URL: http://ceur-ws.org/Vol-2596/paper1.pdf
 ```
 
