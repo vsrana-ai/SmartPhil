@@ -1,6 +1,7 @@
 # SMARTPHIL:
 #FIRST WORKSHOP ON SMART PERSONAL HEALTH INTERFACES
 
+
 Publication Title-
 Towards Morbidity Identification Employing Deep Learning and Word Embeddings within Clinical Notes
 
@@ -10,3 +11,18 @@ Today, we are seeing  an ever-increasing number  of clinical notes that contain 
 Keywords:Deep Learning·Natural Language Processing·MorbidityDetection·Word Embeddings·Classification.
 
 This repository contains the source code used for our experiments, to run classical and deep learning algoroithms. 
+
+System Requirements: 
+Keras
+Gensim
+sklearn
+
+The access to datatset can be requested by website of Harvard Medical School:
+https://portal.dbmi.hms.harvard.edu/projects/n2c2-nlp/
+
+
+
+
+
+
+
