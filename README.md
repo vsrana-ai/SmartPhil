@@ -3,14 +3,20 @@
 This repository contains the source code used for our experiments, to run classical and deep learning algoroithms. 
 ```
 ## System Requirements: 
-``` Python3
+``` 
+Python3
 Keras
 Gensim
-sklearn ```
+sklearn
+argparse == 1.1
+```
+
+
+### The access to datatset can be requested by website of Harvard Medical School:
+``` URL https://portal.dbmi.hms.harvard.edu/projects/n2c2-nlp/ ``` 
 
 
 ## Publication : TF-IDF vs Word Embeddings for Morbidity Identification in Clinical Notes: An Initial Study
-
 ```
 URL: http://ceur-ws.org/Vol-2596/paper1.pdf
 ```
@@ -25,34 +31,6 @@ Keywords: Deep Learning·Natural Language Processing·MorbidityDetection·Word E
 
 
 
-The access to datatset can be requested by website of Harvard Medical School:
-https://portal.dbmi.hms.harvard.edu/projects/n2c2-nlp/
-
-
-
-# K-LM: Knowledge Agumenting in Langauge-Models 
-
-```
-This repository contains the source code of the project.  
-```
-## Requirements
-
-Software:
-```
-Python3
-Pytorch >= 1.0
-argparse == 1.1
-```
-
-
-## Knowledge Graphs
-The Artificial Intelligence Knowledge Graph (AI-KG) dump can be downloded in .ttl format from the link below:
-
-```
-https://scholkg.kmi.open.ac.uk/
-```
-
-## Publication
 
 
 
