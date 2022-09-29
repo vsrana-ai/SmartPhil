@@ -13,6 +13,7 @@ Keywords:Deep Learning·Natural Language Processing·MorbidityDetection·Word Em
 This repository contains the source code used for our experiments, to run classical and deep learning algoroithms. 
 
 System Requirements: 
+Python3
 Keras
 Gensim
 sklearn
